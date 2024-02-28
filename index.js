@@ -1,5 +1,5 @@
 const express = require('express')
-const db = require('./db')
+const connectDB = require('./config/connectDB')
 require('dotenv').config()
 const app = express()
 const cors = require('cors');
@@ -12,7 +12,6 @@ const userRouter = require('./routes/userRouter');
 
 app.use(cors())
 app.use(bodyParser.json())
-app.use('/', userRouter)
 
 
 
@@ -29,8 +28,10 @@ const port = process.env.PORT || 3000;
 app.get('/', (req, res) => {
     res.send('Hello World!')
 })
+connectDB()
+app.use('/', userRouter)
 
 httpServer.listen(port, () => {
     console.log("Server connected...")
 })
-db()
+

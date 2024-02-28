@@ -5,16 +5,23 @@ const { type } = require('os');
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
-        required: true,
-        unique: true,
+        required: [true, "Username is required..."],
+        unique: [true, "User name already exists"],
         trim: true,
-        lowercase: true
+        lowercase: true,
+        match: [/^[a-zA-Z0-9]+$/, 'is invalid']
 
     },
     email: {
         type: String,
-        unique: true,
-        required: true
+        unique: [true, "Email already exists"],
+        required: [true, "Email is required..."],
+        validate: {
+            validator: function (value) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+            },
+            message: 'Invalid email address format',
+        },
     },
     password: {
         type: String,
@@ -23,15 +30,9 @@ const userSchema = new mongoose.Schema({
     profilePic: {
         type: String,
         require: false
-    },
-    createdAt: {
-        type: Date,
-        default: () => Date.now(),
-        immutable: true,
-    },
-    updatedAt: Date
+    }
 
-}, { strict: true })
+}, { timestamps: true }, { strict: true })
 
 const User = mongoose.model("User", userSchema)
 
