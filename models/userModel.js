@@ -20,10 +20,17 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    profile: {
+    profilePic: {
         type: String,
         require: false
-    }
+    },
+    createdAt: {
+        type: Date,
+        default: () => Date.now(),
+        immutable: true,
+    },
+    updatedAt: Date
+
 }, { strict: true })
 
 const User = mongoose.model("User", userSchema)
