@@ -6,13 +6,17 @@ const cors = require('cors');
 const bodyParser = require('body-parser')
 const http = require("http")
 const { Server } = require("socket.io");
+const userRouter = require('./routes/userRouter');
+const authRouter = require('./routes/authRouter');
+const cookieParser = require('cookie-parser')
+
+
 const httpServer = http.createServer(app)
 
-const userRouter = require('./routes/userRouter');
 
 app.use(cors())
 app.use(bodyParser.json())
-
+app.use(cookieParser())
 
 
 
@@ -30,6 +34,7 @@ app.get('/', (req, res) => {
 })
 connectDB()
 app.use('/', userRouter)
+app.use('/', authRouter)
 
 httpServer.listen(port, () => {
     console.log("Server connected...")
