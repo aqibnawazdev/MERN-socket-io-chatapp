@@ -15,36 +15,40 @@ import Paper from "@mui/material/Paper";
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import axios from "axios";
+import { showToastMessage } from "../../utils/showToast.js";
+
 const defaultTheme = createTheme();
 
 export default function Login() {
-  const showToastMessage = (message) => {
-    if (message === "Logged in Successfully...") {
-      toast.success(message, {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        progress: undefined,
-      });
-    } else {
-      toast.error(message, {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        progress: undefined,
-      });
-    }
-  };
   const navigate = useNavigate();
-  const handleSubmit = (event) => {
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const email = data.get("email");
-    const password = data.get("password");
+    const formData = new FormData(event.currentTarget);
+    const email = formData.get("email");
+    const password = formData.get("password");
+
+    try {
+      const { data } = await axios.post("http://127.0.0.1:8080/users/login", {
+        email,
+        password,
+      });
+      console.log(data);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      const toastDetails = {
+        type: data.status,
+        message: data.message,
+      };
+      showToastMessage(toastDetails);
+      navigate("/");
+    } catch (error) {
+      const toastDetails = {
+        type: error?.response.data.status,
+        message: error?.response.data.message,
+      };
+      showToastMessage(toastDetails);
+    }
   };
   return (
     <ThemeProvider theme={defaultTheme}>
