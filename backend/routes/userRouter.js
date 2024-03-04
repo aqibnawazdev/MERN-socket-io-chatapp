@@ -1,14 +1,14 @@
 const express = require("express");
-const getUser = require("../controllers/userController/getUser");
-const updateUser = require("../controllers/userController/updateUser");
-const deleteUser = require("../controllers/userController/deleteUser");
+const getUser = require("../controllers/user/getUser");
+const updateUser = require("../controllers/user/updateUser");
+const deleteUser = require("../controllers/user/deleteUser");
 
-const getAllUsers = require("../controllers/userController/getAllUsers");
+const getAllUsers = require("../controllers/user/getAllUsers");
 const verifyToken = require("../middleware/verifyToken");
 
 const router = express.Router()
 
-router.get('/users', verifyToken, getUser);
+router.get('/users/:id', verifyToken, getUser);
 router.get('/users/', verifyToken, getAllUsers);
 router.put('/users/:id', verifyToken, updateUser);
 router.delete('/users/:id', verifyToken, deleteUser);
