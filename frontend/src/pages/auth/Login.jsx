@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
 import { showToastMessage } from "../../utils/showToast.js";
+import newRequest from "../../utils/newRequest.js";
 
 const defaultTheme = createTheme();
 
@@ -30,12 +31,11 @@ export default function Login() {
     const password = formData.get("password");
 
     try {
-      const { data } = await axios.post("http://127.0.0.1:8080/api/login", {
-        withCredentials: true,
-        credentials: "include",
+      const { data } = await newRequest.post("/login", {
         email,
         password,
       });
+      console.log(data);
       localStorage.setItem("user", JSON.stringify(data.user));
       const toastDetails = {
         type: data.status,

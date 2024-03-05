@@ -6,6 +6,7 @@ require("dotenv").config();
 const loginUser = async (req, res) => {
 
     const { email, password } = req.body;
+    console.log(req.body)
     if (!email || !password) {
         return res
             .status(400)
@@ -43,13 +44,12 @@ const loginUser = async (req, res) => {
             username: checkUser.username,
             email: checkUser.email,
             photoURL: checkUser.photoURL,
-            token: token
-
         }
         res
             .cookie("accessToken", token, {
                 httpOnly: true,
-                expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+                sameSite: "none",
+                secure: true
             })
             .status(200)
             .send({ status: "success", message: "Logged in successfully..", user: userInfo });

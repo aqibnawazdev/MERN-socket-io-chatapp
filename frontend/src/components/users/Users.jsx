@@ -10,6 +10,7 @@ import { fontFamilies } from "../../Theme/Components-Theme/typography";
 import UserCard from "../cards/UserCard";
 import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
+import newRequest from "../../utils/newRequest";
 function Users() {
   const [searchUser, setSearchUser] = useState("");
   const [availableUser, setAvailableUser] = useState(null);
@@ -22,12 +23,8 @@ function Users() {
   //Handle Search
   const fetchConversations = async (token, userId) => {
     console.log("UserId", userId);
-    const { data } = await axios.post(
-      "http://127.0.0.1:8080/api/conversations",
-      {
-        userId: userId,
-      }
-    );
+    const { data } = await newRequest.get("/conversations");
+
     console.log("conversation", data);
     setConversations(data.conversation);
   };
@@ -41,11 +38,9 @@ function Users() {
     e.preventDefault();
     setSearch(true);
 
-    const { data } = await axios.get(
-      "http://127.0.0.1:8080/api/users/" + searchUser
-    );
+    const { data } = await newRequest.get("/users/" + searchUser);
+
     setAvailableUser(data.user);
-    // console.log(data.user);
     setSearchUser("");
   };
 

@@ -6,11 +6,33 @@ import IconButton from "@mui/material/IconButton";
 import UserAvatar from "../avatar/UserAvatar";
 import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import newRequest from "../../utils/newRequest";
+import { showToastMessage } from "../../utils/showToast";
 
 function SideBar() {
   const navigate = useNavigate();
   const { currentUser } = useContext(AuthContext);
-  const handleLogout = () => {};
+  const handleLogout = async () => {
+    try {
+      const { data } = await newRequest.post("/logout");
+      console.log("data", data);
+      if (data.status === "success") {
+        localStorage.removeItem("user");
+        const toastDetails = {
+          type: data.status,
+          message: data.message,
+        };
+        showToastMessage(toastDetails);
+        navigate("/login");
+      }
+    } catch (error) {
+      const toastDetails = {
+        type: error.status,
+        message: error.response.message,
+      };
+      showToastMessage(toastDetails);
+    }
+  };
   return (
     <SideBarContainer>
       <Grid item marginTop={2}>

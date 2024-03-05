@@ -12,6 +12,7 @@ import SendIcon from "@mui/icons-material/Send";
 import Message from "./Message";
 import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
+import newRequest from "../../utils/newRequest";
 function Messages() {
   const [message, setMessage] = useState("");
   // const [currentUser, setCurrentUser] = useState(null);
@@ -43,14 +44,19 @@ function Messages() {
 
     try {
       if (!conversationId) {
-        const { data } = await axios.post(
-          "http://127.0.0.1:8080/api/conversations/single",
-          {
-            currentUserId: currentUser.userId,
-            selectedUserId: selectedUser._id,
-          }
+        const { data } = await newRequest.get(
+          "/conversations/" + selectedUser._id
         );
+        console.log("alreadey Exists...", data);
         setConversationId(data.conversationId);
+        if (!data) {
+          const res = await newRequest.post(
+            "/conversations" + selectedUser._id
+          );
+          setConversationId(res.data.conversationId);
+          console.log("Newly created...", res.data);
+        }
+
         await axios.post("http://127.0.0.1:8080/api/messages", {
           conversationId: data.conversationId,
           to: selectedUser._id,

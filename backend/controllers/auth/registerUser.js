@@ -18,7 +18,7 @@ const registerUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, saltRounds)
 
         const userData = {
-            username: username,
+            username: username.toLowerCase.replaceAll(' ', ""),
             email: email.toLowerCase(),
             photoURL,
             password: hashedPassword,

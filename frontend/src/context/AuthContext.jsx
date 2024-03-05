@@ -2,6 +2,7 @@ import React, { createContext, useEffect, useReducer, useState } from "react";
 
 import { userReducer } from "./userReducer.js";
 import axios from "axios";
+import newRequest from "../utils/newRequest.js";
 export const AuthContext = createContext(null);
 
 export const AuthContextProvider = ({ children }) => {
@@ -16,30 +17,24 @@ export const AuthContextProvider = ({ children }) => {
   const handleUserSelect = async (selectedUser, conversationId) => {
     dispatch({ type: "SELECT_USER", payload: selectedUser });
     setSingleConversation(null);
+    setMessages(null);
     setConversationId(null);
     if (!conversationId) {
       setSelectedUser(selectedUser);
       console.log("selected User Id", selectedUser);
-      const { data } = await axios.post(
-        "http://127.0.0.1:8080/api/conversations/single",
-        {
-          currentUserId: currentUser.userId,
-          selectedUserId: selectedUser.userId,
-        }
+      const { data } = await newRequest.get(
+        "/conversations/" + selectedUser.userId
       );
       console.log("auth data", data);
-      const res = await axios.get(
-        "http://127.0.0.1:8080/api/messages/" + data.conversationId
-      );
+      const res = await newRequest.get("/messages/" + data.conversationId);
       console.log(res);
       setMessages(res.data.message);
     } else {
       setSelectedUser(selectedUser);
       setConversationId(conversationId);
       console.log("selected User Id", selectedUser);
-      const { data } = await axios.get(
-        "http://127.0.0.1:8080/api/messages/" + conversationId
-      );
+      const { data } = await newRequest.get("/messages/" + conversationId);
+
       setMessages(data.message);
     }
   };

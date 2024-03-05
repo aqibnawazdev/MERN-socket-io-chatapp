@@ -17,6 +17,7 @@ import { AuthContext } from "../../context/AuthContext";
 import uploadImage from "../../utils/uploadImage.js";
 import axios from "axios";
 import { showToastMessage } from "../../utils/showToast.js";
+import newRequest from "../../utils/newRequest.js";
 const defaultTheme = createTheme();
 
 export default function Register() {
@@ -33,12 +34,13 @@ export default function Register() {
     const photoURL = await uploadImage(file);
     console.log("URL ", photoURL);
     try {
-      const { data } = await axios.post("http://127.0.0.1:8080/api/register", {
+      const { data } = await newRequest.post("/register", {
         email,
         password,
         username: name,
         photoURL,
       });
+
       if (data.status === "success") {
         const toastDetails = {
           type: data.status,
