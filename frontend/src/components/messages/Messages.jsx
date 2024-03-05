@@ -11,11 +11,17 @@ import AttachFileIcon from "@mui/icons-material/AttachFile";
 import SendIcon from "@mui/icons-material/Send";
 import Message from "./Message";
 import { AuthContext } from "../../context/AuthContext";
-
+import axios from "axios";
 function Messages() {
   const [message, setMessage] = useState("");
-  const [currentUser, setCurrentUser] = useState(null);
-  const { selectedUser, chat } = useContext(AuthContext);
+  // const [currentUser, setCurrentUser] = useState(null);
+  const {
+    selectedUser,
+    messages,
+    currentUser,
+    conversationId,
+    setConversationId,
+  } = useContext(AuthContext);
   const [err, setError] = useState("");
   const ref = useRef(null);
   useEffect(() => {}, []);
@@ -31,16 +37,39 @@ function Messages() {
 
   const handleMessageSent = async (e) => {
     e.preventDefault();
-    if (message.length < 1) {
-      return;
-    }
+    // if (message.length < 1) {
+    //   return;
+    // }
+
     try {
-      let chatId =
-        currentUser.uid > selectedUser.userId
-          ? currentUser.uid + selectedUser.userId
-          : selectedUser.userId + currentUser.uid;
+      if (!conversationId) {
+        const { data } = await axios.post(
+          "http://127.0.0.1:8080/api/conversations/single",
+          {
+            currentUserId: currentUser.userId,
+            selectedUserId: selectedUser._id,
+          }
+        );
+        setConversationId(data.conversationId);
+        await axios.post("http://127.0.0.1:8080/api/messages", {
+          conversationId: data.conversationId,
+          to: selectedUser._id,
+          by: currentUser.userId,
+          body: message,
+        });
+      } else {
+        await axios.post("http://127.0.0.1:8080/api/messages", {
+          conversationId: conversationId,
+          to: selectedUser._id,
+          by: currentUser.userId,
+          body: message,
+        });
+      }
+
       setMessage("");
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <MessagesContainer>
@@ -71,7 +100,7 @@ function Messages() {
             variant="h4"
             sx={{ fontWeight: 600, margin: "0px", padding: "0px" }}
           >
-            {selectedUser?.displayName}
+            {selectedUser?.username}
           </Typography>
           <Typography variant="caption">{selectedUser?.status}</Typography>
         </Box>
@@ -96,13 +125,17 @@ function Messages() {
           overflow: "auto",
           position: "fixed",
           bottom: "70px",
-          top: "10px",
+          top: "70px",
         }}
       >
-        {chat &&
-          chat?.messages.map((m, i) => (
-            <Message key={m.sendAt} currUserId={currentUser.uid} message={m} />
-          ))}
+        {messages?.map((m, i) => (
+          <Message
+            key={m._id}
+            currUserId={currentUser.userId}
+            message={m.body}
+            sender={m.by}
+          />
+        ))}
         <div ref={ref} />
       </Box>
 
