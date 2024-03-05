@@ -9,7 +9,7 @@ import Divider from "@mui/material/Divider";
 import { fontFamilies } from "../../Theme/Components-Theme/typography";
 import UserCard from "../cards/UserCard";
 import { AuthContext } from "../../context/AuthContext";
-
+import axios from "axios";
 function Users() {
   const [searchUser, setSearchUser] = useState("");
   const [availableUser, setAvailableUser] = useState(null);
@@ -20,13 +20,32 @@ function Users() {
   const [currentUserId, setCurrentUserId] = useState(null);
 
   //Handle Search
-  const fetchConversations = (currUserId) => {};
-  useEffect(() => {}, []);
+  const fetchConversations = async (token, userId) => {
+    console.log("UserId", userId);
+    const { data } = await axios.post(
+      "http://127.0.0.1:8080/api/conversations",
+      {
+        userId: userId,
+      }
+    );
+    console.log("conversation", data);
+    setConversations(data.conversation);
+  };
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    setCurrentUserId(user.userId);
+    fetchConversations(user.token, user.userId);
+  }, []);
 
   const handleSearch = async (e) => {
     e.preventDefault();
     setSearch(true);
 
+    const { data } = await axios.get(
+      "http://127.0.0.1:8080/api/users/" + searchUser
+    );
+    setAvailableUser(data.user);
+    // console.log(data.user);
     setSearchUser("");
   };
 
@@ -36,7 +55,7 @@ function Users() {
 
   const handleChatUserSelect = async (selectedUser, chatId) => {
     const selectedUserId = selectedUser;
-    handleUserSelect(doc.data(), chatId);
+    handleUserSelect(selectedUser, chatId);
   };
 
   return (
@@ -90,7 +109,7 @@ function Users() {
             {availableUser ? (
               <UserCard
                 photoURL={availableUser?.photoURL}
-                userName={availableUser?.displayName}
+                userName={availableUser?.username}
               />
             ) : (
               <Typography variant="h1" color="initial">
@@ -116,26 +135,34 @@ function Users() {
             People
           </Typography>
 
-          {conversation?.map((c) => (
+          {conversation?.map((c, { _id, users }) => (
             <Box
               component={"div"}
               sx={{ width: "100%", cursor: "pointer" }}
-              key={c.docId}
+              key={c._id}
               onClick={(e) => {
                 let selectedUserId =
-                  c.users[0] === currentUserId ? c.users[1] : c.users[0];
-                handleChatUserSelect(selectedUserId, c.conversationId);
+                  c.users[0] === currentUserId ? c.users[0] : c.users[1];
+                handleChatUserSelect(selectedUserId, c._id);
               }}
             >
               <UserCard
-                photoURL={""}
-                userName={""}
-                user={c.users}
-                chatid={c.docId}
-                seen={c.messages.seen}
-                message={c.messages[c.messages?.length - 1].body}
-                updatedAt={c.updatedAt}
-                messagesLength={c.messages.length}
+                photoURL={
+                  c.users[0]._id === currentUserId
+                    ? c?.users[1].photoURL
+                    : c?.users[0].photoURL || ""
+                }
+                userName={
+                  c.users[0]._id === currentUserId
+                    ? c?.users[1].username
+                    : c?.users[0].username
+                }
+                user={c?.users}
+                chatid={c?._id}
+                // seen={c.messages.seen}
+                // message={c.messages[c.messages?.length - 1].body}
+                // updatedAt={c.updatedAt}
+                // messagesLength={c.messages.length}
               />
               <Divider
                 component="li"

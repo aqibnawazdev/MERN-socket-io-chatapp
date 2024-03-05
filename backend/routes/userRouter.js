@@ -8,7 +8,7 @@ const verifyToken = require("../middleware/verifyToken");
 
 const router = express.Router()
 
-router.get('/users/:id', verifyToken, getUser);
+router.get('/users/:username', getUser);
 router.get('/users/', verifyToken, getAllUsers);
 router.put('/users/:id', verifyToken, updateUser);
 router.delete('/users/:id', verifyToken, deleteUser);

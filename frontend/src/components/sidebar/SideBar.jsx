@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 function SideBar() {
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  const { currentUser } = useContext(AuthContext);
   const handleLogout = () => {};
   return (
     <SideBarContainer>
@@ -20,7 +20,7 @@ function SideBar() {
             flexDirection: "column",
           }}
         >
-          <UserAvatar srcPath={user.photoURL} alt="" />
+          <UserAvatar srcPath={currentUser?.photoURL} alt="" />
         </IconButton>
 
         <Stack marginTop={2}>

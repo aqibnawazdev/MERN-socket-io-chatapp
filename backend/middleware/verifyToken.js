@@ -2,8 +2,10 @@ const jwt = require('jsonwebtoken')
 require('dotenv').config()
 
 const verifyToken = (req, res, next) => {
+
     try {
         const token = req.cookies.accessToken
+        console.log(token)
         if (!token) {
             return res.status(404).send({ status: "fail", message: "You are not Authorized! Please login first" })
         }

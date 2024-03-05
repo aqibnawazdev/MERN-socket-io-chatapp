@@ -1,7 +1,7 @@
 
 const logoutUser = async (req, res) => {
 
-    res.status(200).clearCookie("jwt").send({ status: "success", message: "Logged out successfully..." })
+    res.status(200).clearCookie("accessToken", { sameSite: "none", secure: true, httpOnly: true }).send({ status: "success", message: "Logged out successfully..." })
 
 }
 

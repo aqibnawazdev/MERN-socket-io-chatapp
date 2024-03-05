@@ -4,9 +4,10 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const loginUser = async (req, res) => {
+
     const { email, password } = req.body;
     if (!email || !password) {
-        res
+        return res
             .status(400)
             .send({ status: "fail", message: "Username or Password is empty..." });
     }
@@ -48,8 +49,6 @@ const loginUser = async (req, res) => {
         res
             .cookie("accessToken", token, {
                 httpOnly: true,
-                secure: true,
-                sameSite: true,
                 expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
             })
             .status(200)

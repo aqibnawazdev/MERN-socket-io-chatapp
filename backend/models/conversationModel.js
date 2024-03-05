@@ -6,6 +6,11 @@ const conversationSchema = new mongoose.Schema({
             type: mongoose.Schema.ObjectId,
             ref: User,
             require: true
+        },
+        {
+            type: mongoose.Schema.ObjectId,
+            ref: User,
+            require: true
         }
     ]
 

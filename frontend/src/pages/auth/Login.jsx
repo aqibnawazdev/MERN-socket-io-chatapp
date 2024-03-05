@@ -30,11 +30,12 @@ export default function Login() {
     const password = formData.get("password");
 
     try {
-      const { data } = await axios.post("http://127.0.0.1:8080/users/login", {
+      const { data } = await axios.post("http://127.0.0.1:8080/api/login", {
+        withCredentials: true,
+        credentials: "include",
         email,
         password,
       });
-      console.log(data);
       localStorage.setItem("user", JSON.stringify(data.user));
       const toastDetails = {
         type: data.status,
