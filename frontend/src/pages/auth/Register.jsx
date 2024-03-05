@@ -14,43 +14,14 @@ import { Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../../context/AuthContext";
-
+import uploadImage from "../../utils/uploadImage.js";
+import axios from "axios";
+import { showToastMessage } from "../../utils/showToast.js";
 const defaultTheme = createTheme();
 
 export default function Register() {
   const navigate = useNavigate();
   const { user } = React.useContext(AuthContext);
-
-  const showToastMessage = (message) => {
-    if (message === "Registered sucessfully...") {
-      toast.success(message, {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        progress: undefined,
-      });
-    } else if (message === "Please wait, while registering..!!!") {
-      toast.loading(message, {
-        position: "top-center",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        progress: undefined,
-      });
-    } else {
-      toast.error(message, {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        progress: undefined,
-      });
-    }
-  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -59,9 +30,33 @@ export default function Register() {
     const password = data.get("password");
     const name = data.get("name").replaceAll(" ", "").toLowerCase();
     const file = data.get("profile-pic");
-
+    const photoURL = await uploadImage(file);
+    console.log("URL ", photoURL);
     try {
-    } catch (error) {}
+      const { data } = await axios.post("http://127.0.0.1:8080/api/register", {
+        email,
+        password,
+        username: name,
+        photoURL,
+      });
+      if (data.status === "success") {
+        const toastDetails = {
+          type: data.status,
+          message: data.message,
+        };
+        showToastMessage(toastDetails);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        setTimeout(() => {
+          navigate("/");
+        }, 1000);
+      }
+    } catch (error) {
+      const toastDetails = {
+        type: error?.response.data.status,
+        message: error?.response.data.message,
+      };
+      showToastMessage(toastDetails);
+    }
   };
 
   return (
