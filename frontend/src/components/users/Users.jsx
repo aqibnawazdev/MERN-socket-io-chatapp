@@ -19,7 +19,7 @@ function Users() {
   const [conversation, setConversations] = useState(null);
   const { handleUserSelect } = useContext(AuthContext);
   const [currentUserId, setCurrentUserId] = useState(null);
-
+  console.log("currrrr", currentUserId);
   //Handle Search
   const fetchConversations = async (token, userId) => {
     console.log("UserId", userId);
@@ -32,7 +32,7 @@ function Users() {
     const user = JSON.parse(localStorage.getItem("user"));
     setCurrentUserId(user.userId);
     fetchConversations(user.token, user.userId);
-  }, []);
+  }, [currentUserId]);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -50,6 +50,7 @@ function Users() {
 
   const handleChatUserSelect = async (selectedUser, chatId) => {
     const selectedUserId = selectedUser;
+    console.log("sellllll", selectedUser._id);
     handleUserSelect(selectedUser, chatId);
   };
 
@@ -130,28 +131,19 @@ function Users() {
             People
           </Typography>
 
-          {conversation?.map((c, { _id, users }) => (
+          {conversation?.map((c) => (
             <Box
               component={"div"}
               sx={{ width: "100%", cursor: "pointer" }}
               key={c._id}
               onClick={(e) => {
-                let selectedUserId =
-                  c.users[0] === currentUserId ? c.users[0] : c.users[1];
+                let selectedUserId = c.users;
                 handleChatUserSelect(selectedUserId, c._id);
               }}
             >
               <UserCard
-                photoURL={
-                  c.users[0]._id === currentUserId
-                    ? c?.users[1].photoURL
-                    : c?.users[0].photoURL || ""
-                }
-                userName={
-                  c.users[0]._id === currentUserId
-                    ? c?.users[1].username
-                    : c?.users[0].username
-                }
+                photoURL={c.users.photoURL || ""}
+                userName={c.users.username || ""}
                 user={c?.users}
                 chatid={c?._id}
                 // seen={c.messages.seen}

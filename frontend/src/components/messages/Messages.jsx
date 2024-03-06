@@ -13,6 +13,7 @@ import Message from "./Message";
 import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
 import newRequest from "../../utils/newRequest";
+import { socket } from "../../socket";
 function Messages() {
   const [message, setMessage] = useState("");
   // const [currentUser, setCurrentUser] = useState(null);
@@ -22,19 +23,21 @@ function Messages() {
     currentUser,
     conversationId,
     setConversationId,
+    refresh,
+    setRefresh,
   } = useContext(AuthContext);
   const [err, setError] = useState("");
   const ref = useRef(null);
   useEffect(() => {}, []);
 
-  // useEffect(() => {
-  //   if (chat?.messages.length) {
-  //     ref.current?.scrollIntoView({
-  //       behavior: "smooth",
-  //       block: "end",
-  //     });
-  //   }
-  // }, [chat?.messages?.length]);
+  useEffect(() => {
+    if (messages?.length) {
+      ref.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
+    }
+  }, [messages?.length]);
 
   const handleMessageSent = async (e) => {
     e.preventDefault();
@@ -57,19 +60,33 @@ function Messages() {
           console.log("Newly created...", res.data);
         }
 
-        await axios.post("http://127.0.0.1:8080/api/messages", {
+        await newRequest.post("/messages", {
           conversationId: data.conversationId,
           to: selectedUser._id,
           by: currentUser.userId,
           body: message,
         });
-      } else {
-        await axios.post("http://127.0.0.1:8080/api/messages", {
+        socket.emit("newMessage", {
           conversationId: conversationId,
           to: selectedUser._id,
           by: currentUser.userId,
           body: message,
         });
+        setRefresh((prev) => prev + 1);
+      } else {
+        await newRequest.post("/messages", {
+          conversationId: conversationId,
+          to: selectedUser._id,
+          by: currentUser.userId,
+          body: message,
+        });
+        socket.emit("newMessage", {
+          conversationId: conversationId,
+          to: selectedUser._id,
+          by: currentUser.userId,
+          body: message,
+        });
+        setRefresh((prev) => prev + 1);
       }
 
       setMessage("");
@@ -131,7 +148,7 @@ function Messages() {
           overflow: "auto",
           position: "fixed",
           bottom: "70px",
-          top: "70px",
+          top: "10px",
         }}
       >
         {messages?.map((m, i) => (

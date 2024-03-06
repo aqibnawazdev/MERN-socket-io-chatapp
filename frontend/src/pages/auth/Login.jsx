@@ -18,6 +18,7 @@ import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
 import { showToastMessage } from "../../utils/showToast.js";
 import newRequest from "../../utils/newRequest.js";
+import { socket } from "../../socket.js";
 
 const defaultTheme = createTheme();
 
@@ -42,7 +43,14 @@ export default function Login() {
         message: data.message,
       };
       showToastMessage(toastDetails);
-      navigate("/");
+      if (data.user) {
+        socket.emit("addUser", {
+          userId: data.user.userId,
+        });
+      }
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
     } catch (error) {
       const toastDetails = {
         type: error?.response.data.status,
